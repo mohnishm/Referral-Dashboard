@@ -1,0 +1,136 @@
+{% extends "admin/base_site.html" %}
+{% load widget_tweaks %}
+{% block extrastyle %}
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>    
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.min.css" integrity="sha256-DOS9W6NR+NFe1fUhEE0PGKY/fubbUCnOfTje2JMDw3Y=" crossorigin="anonymous" />
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.full.min.js" integrity="sha256-FEqEelWI3WouFOo2VWP/uJfs1y8KJ++FLh2Lbqc8SJk=" crossorigin="anonymous"></script>
+{% endblock %}
+{% block content %}
+    <div class="form_div" style="width:60%;">
+        <h2>Campaign Form</h2>
+        <form method="POST">
+            {% csrf_token %}
+            {% for field in form.visible_fields %}
+                <div class="form-group">
+                    {{ field.label_tag }}
+                    {% render_field field class="form-control" %}
+                    {% if field.help_text %}
+                        <small class="form-text text-muted">{{ field.help_text }}</small>
+                    {% endif %}
+                </div>
+            {% endfor %}            
+            <div style="display: flex; justify-content: space-between; width: 280px;">
+            <h3>Rules</h3><button type="button" id="generate-rule" class="btn btn-primary">+</button>
+            </div>
+            <div class="parent">
+            <div>
+            {{ rule_formset.management_form }}
+            {% for ruleForm in rule_formset %}
+                {{ ruleForm.eventName.label}}
+                {{ ruleForm.eventName }}
+                {{ ruleForm.operator.label }}
+                {{ ruleForm.operator }}
+                {{ ruleForm.value.label }}
+                {{ ruleForm.value }}
+                <input type="button"  class="btn btn-warn" style="background: red;" value="-">
+            {% endfor %}
+            </div>
+            </div>
+             <div style="display: flex; justify-content: space-between; width: 280px;">
+            <h3>Milestone Rules</h3><button  type="button" id="generate-milestone-rule" class="btn btn-primary">+</button>
+            </div>
+            <div class="milestone-parent">
+            <div>
+            {{ milestone_formset.management_form }}
+            {% for milestoneForm in milestone_formset %}
+                {{ milestoneForm.moperator.label }}
+                {{ milestoneForm.moperator }}
+                {{ milestoneForm.mvalue.label }}
+                {{ milestoneForm.mvalue }}
+                {{ milestoneForm.mreferrerCredits.label }}
+                {{ milestoneForm.mreferrerCredits }}
+                <input type="button"  class="btn btn-warn" style="background: red;" value="-">
+            {% endfor %}
+            </div>
+            </div>
+            <div>
+            <input type="submit" value="Post">
+            </div>
+        </form>
+    </div>
+
+    <script>
+        $(function () {
+            $("#id_startDate").datetimepicker({
+            format: 'd/m/Y H:i',
+            });
+            $("#id_endDate").datetimepicker({
+            format: 'd/m/Y H:i',
+            });
+        });
+    </script>
+
+    <script type='text/javascript'>
+        
+        const ruleform = `
+        <div>
+            <input type="hidden" name="form-TOTAL_FORMS" value="1" id="id_form-TOTAL_FORMS">
+            <input type="hidden" name="form-INITIAL_FORMS" value="0" id="id_form-INITIAL_FORMS">
+            <input type="hidden" name="form-MIN_NUM_FORMS" value="0" id="id_form-MIN_NUM_FORMS">
+            <input type="hidden" name="form-MAX_NUM_FORMS" value="1000" id="id_form-MAX_NUM_FORMS">
+            
+                Event Name
+                <input type="text" name="form-0-eventName" maxlength="200" id="id_form-0-eventName">
+                Operator
+                <select name="form-0-operator" id="id_form-0-operator">
+                <option value="EQUAL">EQUAL</option>
+
+                <option value="EVERY">EVERY</option>
+
+                </select>
+                Value
+                <input type="number" name="form-0-value" id="id_form-0-value">
+                <input type="button" class="btn btn-warn" style="background: red;" value="-">
+            
+            </div>
+            `
+        const milestoneform = `
+        <div>
+            <input type="hidden" name="form-TOTAL_FORMS" value="1" id="id_form-TOTAL_FORMS">
+            <input type="hidden" name="form-INITIAL_FORMS" value="0" id="id_form-INITIAL_FORMS">
+            <input type="hidden" name="form-MIN_NUM_FORMS" value="0" id="id_form-MIN_NUM_FORMS">
+            <input type="hidden" name="form-MAX_NUM_FORMS" value="1000" id="id_form-MAX_NUM_FORMS">
+            
+                Operator
+                <select name="form-0-operator" id="id_form-0-operator">
+                <option value="EQUAL">EQUAL</option>
+
+                <option value="EVERY">EVERY</option>
+
+                </select>
+                Value
+                <input type="number" name="form-0-value" id="id_form-0-value">
+                Referrer Credits
+                <input type="number" name="form-0-referrerCredits" id="id_form-0-referrerCredits">
+                <input type="button" class="btn btn-warn" style="background: red;" value="-">
+            
+            </div>
+        `
+        $("#generate-rule").on('click', function(e){
+            $(".parent").append(ruleform)
+        })
+        $("#generate-milestone-rule").on('click', function(e){
+            $(".milestone-parent").append(milestoneform)        
+        })
+        $(".parent").on("click", (e) => {
+            return e.target.classList.contains('btn-warn') && e.target.parentNode.remove()
+        })
+
+        $(".milestone-parent").on("click", (e) => {
+            return e.target.classList.contains('btn-warn') && e.target.parentNode.remove()
+        })
+    </script>
+{% endblock %}
