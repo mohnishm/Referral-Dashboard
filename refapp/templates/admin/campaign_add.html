@@ -9,6 +9,15 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>    
     
 {% endblock %}
+
+{% block breadcrumbs %}
+    <div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">Home</a>
+    <a>&rsaquo;</a>
+    <a href="{% url 'admin:campaign-view' %}">Dashboard</a>
+    </div>
+{% endblock %}
+
 {% block content %}
     <div class="form_div" style="width:60%;">
         <h2>Campaign Form</h2>
@@ -28,26 +37,26 @@
                 <button type="button" id="generate-rule" class="btn btn-primary">+</button>
             </div>
             <div class="parent">
-            <div>
-            {{ rule_formset.management_form }}
-            {% for ruleForm in rule_formset %}
-                {{ ruleForm }}
-                <input type="button"  class="btn btn-warn" style="background: red;" value="-">
-            {% endfor %}
-            </div>
+                {{ rule_formset.management_form }}
+                <div  class="parent-rules">
+                    {% for ruleForm in rule_formset %}
+                        {{ ruleForm }}
+                        <input type="button"  class="btn btn-warn" style="background: red;" value="-">
+                    {% endfor %}
+                </div>
             </div>
              <div style="display: flex; justify-content: space-between; width: 280px;">
                 <h3>Milestone Rules</h3>
                 <button  type="button" id="generate-milestone-rule" class="btn btn-primary">+</button>
             </div>
             <div class="milestone-parent">
-            <div>
-            {{ milestone_formset.management_form }}
-            {% for milestoneForm in milestone_formset %}
-                {{ milestoneForm }}
-                <input type="button"  class="btn btn-warn" style="background: red;" value="-">
-            {% endfor %}
-            </div>
+                {{ milestone_formset.management_form }}
+                <div class="parent-milestone">
+                    {% for milestoneForm in milestone_formset %}
+                        {{ milestoneForm }}
+                        <input type="button"  class="btn btn-warn" style="background: red;" value="-">
+                    {% endfor %}
+                </div>
             </div>
             <div>
             <input type="submit" value="Post">
@@ -69,7 +78,7 @@
     <script type='text/javascript'>
         
         const ruleform = `
-        <div>
+        <div class="parent-rules">
             <label for="id_rules-{n}-eventName">Event Name:</label>
             <input type="text" name="rules-{n}-eventName" maxlength="200" id="id_rules-{n}-eventName">
 
@@ -85,7 +94,7 @@
         </div>
         `
         const milestoneform = `
-        <div>
+        <div class="parent-milestone">
             <label for="id_milestones-{n}-operator">Operator:</label>
             <select name="milestones-{n}-operator" id="id_milestones-{n}-operator">
                 <option value="EQUAL">EQUAL</option>
@@ -95,18 +104,25 @@
             <label for="id_milestones-{n}-value">Value:</label>
             <input type="number" name="milestones-{n}-value" id="id_milestones-{n}-value">
 
-            <label for="id_milestones-{n}-mreferrerCredits">Referrer Credits:</label>
-            <input type="number" name="milestones-{n}-mReferrerCredits" maxlength="200" id="id_milestones-{n}-mReferrerCredits">
+            <label for="id_milestones-{n}-referrerCredits">Referrer Credits:</label>
+            <input type="number" name="milestones-{n}-referrerCredits" id="id_milestones-{n}-referrerCredits">
 
             <input type="button" class="btn btn-warn" style="background: red;" value="-">
         </div>
         `
+
+        var formValue = document.getElementById("id_rules-TOTAL_FORMS")
+        var formMilestoneValue = document.getElementById("id_milestones-TOTAL_FORMS")
+        var firstForm = document.getElementById("id_milestones-INITIAL_FORMS")
+        
         $("#generate-rule").on('click', function(e){
             var n = $("#id_rules-TOTAL_FORMS").val(); // current number of forms;
             var new_form = ruleform.replace(/{n}/g, n); // replace all {n} by the new form number
             $(".parent").append(new_form);
             $("#id_rules-TOTAL_FORMS").val(parseInt(n) + 1); // update the total forms number
             console.log($("#id_rules-TOTAL_FORMS").val());
+            var parentRuleElem = document.querySelectorAll('.parent-rules')
+            console.log(parentRuleElem)
         })
         $("#generate-milestone-rule").on('click', function(e){
              var n = $("#id_milestones-TOTAL_FORMS").val(); // current number of forms;
@@ -115,22 +131,32 @@
             $("#id_milestones-TOTAL_FORMS").val(parseInt(n) + 1); // update the total forms number
             console.log($("#id_milestones-TOTAL_FORMS").val());
         })
-        var formValue = document.getElementById("id_rules-TOTAL_FORMS")
-        $(".parent").on("click", (e) => {
-            if(formValue.value > 1) {
-                formValue.value -= 1
-                e.target.classList.contains('btn-warn') && e.target.parentNode.remove()
-            }else {
-                formValue.value = 1
+        
+        $(".parent").on("click" , (e) => {
+            var fv;
+            if (e.target.classList.contains('btn-warn')) {
+                fv = formValue.value
+                if(fv > 1) {
+                    e.target.parentNode.remove()
+                    fv -= 1
+                }else {
+                    fv = 1
+                }
+                formValue.value = fv
             }
         })
-        var formMilestoneValue = document.getElementById("id_milestones-TOTAL_FORMS")
-        $(".milestone-parent").on("click", (e) => {
-             if(formMilestoneValue.value > 1) {
-                formMilestoneValue.value -= 1
-                e.target.classList.contains('btn-warn') && e.target.parentNode.remove()
-            }else {
-                formMilestoneValue.value = 1
+
+        $(".milestone-parent").on("click" , (e) => {
+            var fv;
+            if (e.target.classList.contains('btn-warn')) {
+                fv = formMilestoneValue.value
+                if(fv > 1) {
+                    e.target.parentNode.remove()
+                    fv -= 1
+                }else {
+                    fv = 1
+                }
+                formMilestoneValue.value = fv
             }
         })
     </script>

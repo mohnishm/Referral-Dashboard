@@ -34,12 +34,11 @@ class MyAdminSite(admin.AdminSite):
         RuleFormSet = formset_factory(RuleForm)
         MilestoneFormSet = formset_factory(MilestoneRulesForm)
         if request.method == 'POST':
-            import ipdb; ipdb.set_trace()
+            # import ipdb; ipdb.set_trace()
             form = CampaignForm(request.POST)
             rule_formset = RuleFormSet(request.POST, prefix='rules')
             milestone_formset = MilestoneFormSet(request.POST, prefix='milestones')
             if form.is_valid() and rule_formset.is_valid() and milestone_formset.is_valid():
-                    # import ipdb; ipdb.set_trace()
                     dat = {}
                     dat["consumer"] = form.cleaned_data["consumer"]
                     dat["startDate"] = self.datetime_to_epoch(form.cleaned_data["startDate"])
@@ -55,6 +54,7 @@ class MyAdminSite(admin.AdminSite):
                     arrMilestoneRules = milestone_formset.cleaned_data
                     dat["eventRules"] = arrRules
                     dat["milestoneRules"] = arrMilestoneRules
+                    import ipdb; ipdb.set_trace()
                     print(rule_formset.cleaned_data)
                     print(milestone_formset.cleaned_data)
                     print (dat)
@@ -79,20 +79,26 @@ class MyAdminSite(admin.AdminSite):
         return timestamp
 
     def campaign_update(self, request):
-        import ipdb; ipdb.set_trace()
-
+        # import ipdb; ipdb.set_trace()
+        RuleFormSet = formset_factory(RuleForm)
+        MilestoneFormSet = formset_factory(MilestoneRulesForm)
         if request.method == 'GET':
             res = requests.get("https://referralservice-staging-http.internal.cleartax.co/v0/campaigns")
             data = res.json()
             # print(data)
             form = CampaignUpdateForm(initial=data)
-            return render(request, "admin/campaign_update.html", {'form': form})
+            rule_formset = RuleFormSet(prefix='rules')
+            milestone_formset = MilestoneFormSet(prefix='milestones')
+            return render(request, "admin/campaign_update.html", {'form': form,  "rule_formset": rule_formset, "milestone_formset": milestone_formset})
         
         elif request.method == 'POST':
             form = CampaignUpdateForm(request.POST)
-            if form.is_valid():
-                res = requests.put("https://referralservice-staging-http.internal.cleartax.co/v0/campaigns", data=request.POST)
-                if res.status_code == 200:
+            rule_formset = RuleFormSet(request.POST, prefix='rules')
+            milestone_formset = MilestoneFormSet(request.POST, prefix='milestones')
+            if form.is_valid() and rule_formset.is_valid() and milestone_formset.is_valid():
+                dat = {}
+                res = requests.put("https://referralservice-staging-http.internal.cleartax.co/v0/campaigns", data=json.dumps(dat), headers={'content-type': 'application/json'})
+                if res.status_code == 201 or res.status_code == 200:
                     messages.success(request, 'Update Success!')
                     return redirect("admin:campaign")
                 else:

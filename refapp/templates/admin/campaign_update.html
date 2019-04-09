@@ -1,10 +1,61 @@
 {% extends "admin/base_site.html" %}
+{% load widget_tweaks %}
+{% block extrastyle %}
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>    
+{% endblock %}
+
+{% block breadcrumbs %}
+    <div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">Home</a>
+    <a>&rsaquo;</a>
+    <a href="{% url 'admin:campaign-view' %}">Dashboard</a>
+    </div>
+{% endblock %}
+
 {% block content %}
-    <div class="form_div">
-        <h2>Campaign Update Form</h2>
-        <form method="POST">{% csrf_token %}
-            {{ form.as_p }}
-            <input type="submit" value="Update">
+    <div class="form_div" style="width:60%;">
+        <h2>Campaign Form</h2>
+        <form method="POST">
+            {% csrf_token %}
+            {% for field in form.visible_fields %}
+                <div class="form-group">
+                    {{ field.label_tag }}
+                    {% render_field field class="form-control" %}
+                    {% if field.help_text %}
+                        <small class="form-text text-muted">{{ field.help_text }}</small>
+                    {% endif %}
+                </div>
+            {% endfor %}            
+            <div style="display: flex; justify-content: space-between; width: 280px;">
+                <h3>Rules</h3>
+                <button type="button" id="generate-rule" class="btn btn-primary">+</button>
+            </div>
+            <div class="parent">
+                {{ rule_formset.management_form }}
+                <div  class="parent-rules">
+                    {% for ruleForm in rule_formset %}
+                        {{ ruleForm }}
+                        <input type="button"  class="btn btn-warn" style="background: red;" value="-">
+                    {% endfor %}
+                </div>
+            </div>
+             <div style="display: flex; justify-content: space-between; width: 280px;">
+                <h3>Milestone Rules</h3>
+                <button  type="button" id="generate-milestone-rule" class="btn btn-primary">+</button>
+            </div>
+            <div class="milestone-parent">
+                {{ milestone_formset.management_form }}
+                <div class="parent-milestone">
+                    {% for milestoneForm in milestone_formset %}
+                        {{ milestoneForm }}
+                        <input type="button"  class="btn btn-warn" style="background: red;" value="-">
+                    {% endfor %}
+                </div>
+            </div>
+            <div>
+            <input type="submit" value="Post">
+            </div>
         </form>
     </div>
 {% endblock %}
