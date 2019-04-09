@@ -14,69 +14,62 @@ class MyAdminSite(admin.AdminSite):
     def get_urls(self):
         urls = super(MyAdminSite, self).get_urls()
         my_urls = [
-            path('campaign_pg1/', self.admin_view(self.campaign_view_pg1), name="campaign-pg1"),
-            path('campaign_pg2/', self.admin_view(self.campaign_view_pg2), name="campaign-pg2"),
+            path('campaign/', self.admin_view(self.campaign_view), name="campaign-view"),
             path('campaign/add', self.admin_view(self.campaign_add), name="campaign-add"),
             path('campaign/edit', self.admin_view(self.campaign_update), name="campaign-update"),
             # path('campaign/delete/<int:pk>', self.admin_view(self.campaign_delete), name="campaign-delete"),
-
-            # path('campaign/<int:pk>', self.admin_view(self.campaign_update), name="campaign-update"),
         ]
         return my_urls + urls
 
-    def campaign_view_pg1(self, request):
+    def campaign_view(self, request):
         if request.method == 'GET':
             r = requests.get("https://referralservice-staging-http.internal.cleartax.co/v0/campaigns")
             data = r.json()
             print(data)
-            return TemplateResponse(request, "admin/campaign_1.html", {"data":data})
+            return TemplateResponse(request, "admin/campaign.html", {"data":data})
 
-    def campaign_view_pg2(self, request):
-        if request.method == 'GET':
-            r = requests.get("https://referralservice-staging-http.internal.cleartax.co/v0/campaigns")
-            data = r.json()
-            print(data)
-            return TemplateResponse(request, "admin/campaign_2.html", {"data":data})
 
     def campaign_add(self, request):
         form = CampaignForm()
         RuleFormSet = formset_factory(RuleForm)
         MilestoneFormSet = formset_factory(MilestoneRulesForm)
         if request.method == 'POST':
-            # import ipdb; ipdb.set_trace()
+            import ipdb; ipdb.set_trace()
             form = CampaignForm(request.POST)
-            rule_formset = RuleFormSet(request.POST)
-            milestone_formset = MilestoneFormSet(request.POST)
+            rule_formset = RuleFormSet(request.POST, prefix='rules')
+            milestone_formset = MilestoneFormSet(request.POST, prefix='milestones')
             if form.is_valid() and rule_formset.is_valid() and milestone_formset.is_valid():
-                # import ipdb; ipdb.set_trace()
-                # <QueryDict: {'csrfmiddlewaretoken': ['q9Ox6KtEWUxIFXm305KhGRlHcliXtIgc6AjjqjkhG7p791tKvILMXZh8yZdWJWSW'], 'consumer': ['FILING'], 'startDate': ['05/04/2019 16:28'], 'endDate': ['06/04/2019 16:28'], 'referreeCredits': ['50'], 'referrerCredits': ['50'], 'maxReferreeCredits': ['50'], 'maxReferrerCredits': ['50'], 'message': ['Hello'], 'kramerTemplateId': ['kt01'], 'paymentMode': ['PAYTM'], 'form-TOTAL_FORMS': ['1', '1'], 'form-INITIAL_FORMS': ['0', '0'], 'form-MIN_NUM_FORMS': ['0', '0'], 'form-MAX_NUM_FORMS': ['1000', '1000'], 'form-0-eventName': ['string'], 'form-0-operator': ['EQUAL'], 'form-0-value': ['0'], 'form-0-moperator': ['EQUAL'], 'form-0-mvalue': ['0'], 'form-0-mreferrerCredits': ['50']}>
-                dat = {}
-                dat["consumer"] = form.cleaned_data["consumer"]
-                dat["startDate"] = self.datetime_to_epoch(form.cleaned_data["startDate"])
-                dat["endDate"] = self.datetime_to_epoch(form.cleaned_data["endDate"])
-                dat["referreeCredits"] = form.cleaned_data["referreeCredits"]
-                dat["referrerCredits"] = form.cleaned_data["referrerCredits"]
-                dat["maxReferreeCredits"] = form.cleaned_data["maxReferreeCredits"]
-                dat["maxReferrerCredits"] = form.cleaned_data["maxReferrerCredits"]
-                dat["message"] = form.cleaned_data["message"]
-                dat["kramerTemplateId"] = form.cleaned_data["kramerTemplateId"]
-                dat["paymentMode"] = form.cleaned_data["paymentMode"]
-                arrRules = rule_formset.cleaned_data
-                arrMilestoneRules = milestone_formset.cleaned_data
-                dat["eventRules"] = arrRules
-                dat["milestoneRules"] = arrMilestoneRules
-                for rule in rule_formset:
-                    print(rule.cleaned_data)
-                res = requests.post("https://referralservice-staging-http.internal.cleartax.co/v0/campaigns", data=request.POST)
-                if res.status_code == 201 or res.status_code == 200:
-                    messages.success(request, 'Success!')
-                    return redirect("admin:campaign-pg1")
-                else:
-                    messages.error(request, 'Submission Failed.')
+                    # import ipdb; ipdb.set_trace()
+                    dat = {}
+                    dat["consumer"] = form.cleaned_data["consumer"]
+                    dat["startDate"] = self.datetime_to_epoch(form.cleaned_data["startDate"])
+                    dat["endDate"] = self.datetime_to_epoch(form.cleaned_data["endDate"])
+                    dat["referreeCredits"] = form.cleaned_data["referreeCredits"]
+                    dat["referrerCredits"] = form.cleaned_data["referrerCredits"]
+                    dat["maxReferreeCredits"] = form.cleaned_data["maxReferreeCredits"]
+                    dat["maxReferrerCredits"] = form.cleaned_data["maxReferrerCredits"]
+                    dat["message"] = form.cleaned_data["message"]
+                    dat["kramerTemplateId"] = form.cleaned_data["kramerTemplateId"]
+                    dat["paymentMode"] = form.cleaned_data["paymentMode"]
+                    arrRules = rule_formset.cleaned_data
+                    arrMilestoneRules = milestone_formset.cleaned_data
+                    dat["eventRules"] = arrRules
+                    dat["milestoneRules"] = arrMilestoneRules
+                    print(rule_formset.cleaned_data)
+                    print(milestone_formset.cleaned_data)
+                    print (dat)
+                    res = requests.post("https://referralservice-staging-http.internal.cleartax.co/v0/campaigns", data=json.dumps(dat), headers={'content-type': 'application/json'})
+                    if res.status_code == 201 or res.status_code == 200:
+                        # import ipdb; ipdb.set_trace()
+                        messages.success(request, 'Success!')
+                        return redirect("admin:campaign-view")
+                    else:
+                        messages.error(request, 'Submission Failed.')
+                        return redirect("admin:campaign-add")
         else:
-            rule_formset = RuleFormSet()
-            milestone_formset = MilestoneFormSet()
-            return TemplateResponse(request, "admin/campaign_add.html", {"form":form, "rule_formset": rule_formset, "milestone_formset": milestone_formset})
+            rule_formset = RuleFormSet(prefix="rules")
+            milestone_formset = MilestoneFormSet(prefix="milestones")
+        return TemplateResponse(request, "admin/campaign_add.html", {"form":form, "rule_formset": rule_formset, "milestone_formset": milestone_formset})
 
     @staticmethod
     def datetime_to_epoch(datetime_str):

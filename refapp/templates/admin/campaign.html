@@ -9,7 +9,7 @@
     <a href="{% url "admin:campaign-add" %}" class="addlink">Add Campaign</a>
 
     <div>
-        <h2>Campaign Page 1</h2>
+        <h2>Campaign</h2>
         <table class="table table-bordered">
             <thead>
                 <tr>
@@ -22,7 +22,7 @@
                     <th>Max Referrer Credits</th>
                     <th>Message</th>
                     <th>Kramer Template Id</th>
-                    <th>Product ID</th>
+                    <th>Campaign ID</th>
                     <th>Payment Mode</th>
                 </tr>
             </thead>
@@ -39,6 +39,28 @@
                     <td>{{ dat.kramerTemplateId }}</td>
                     <td>{{ dat.campaignId }}</td>
                     <td>{{ dat.paymentMode }}</td>
+                    <td>
+                        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#exampleModalCenter">
+                        Rules
+                        </button>
+
+                        <!-- Modal -->
+                        <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                            <div class="modal-body">
+                                <h3>Rules</h3>
+                                <p>{{ dat.eventRules }}</p>
+                                <h3>Milestone Rules</h3>
+                                <p>{{ dat.milestoneRules }}</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            </div>
+                            </div>
+                        </div>
+                        </div>
+                    </td>
                     <td><form action="{% url 'admin:campaign-update' %}">
                             <input type="submit" value="Edit" />
                         </form>
@@ -52,4 +74,8 @@
         </table>
             
     </div>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 {% endblock %}

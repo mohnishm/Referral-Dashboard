@@ -21,9 +21,9 @@ class RuleForm(forms.Form):
     value = forms.IntegerField(label="Value")
 
 class MilestoneRulesForm(forms.Form):
-    moperator = forms.ChoiceField(label="Operator", choices=[("EQUAL","EQUAL"), ("EVERY","EVERY")])
-    mvalue = forms.IntegerField(label="Value")
-    mreferrerCredits = forms.IntegerField(label="Referrer Credits")
+    operator = forms.ChoiceField(label="Operator", choices=[("EQUAL","EQUAL"), ("EVERY","EVERY")])
+    value = forms.IntegerField(label="Value")
+    referrerCredits = forms.IntegerField(label="Referrer Credits")
 
 class CampaignUpdateForm(forms.Form):
     campaignId = forms.IntegerField()
