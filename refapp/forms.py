@@ -26,17 +26,10 @@ class MilestoneRulesForm(forms.Form):
     referrerCredits = forms.IntegerField(label="Referrer Credits")
 
 class CampaignUpdateForm(forms.Form):
-    campaignId = forms.IntegerField()
     referreeCredits = forms.IntegerField()
     referrerCredits = forms.IntegerField()
     maxReferreeCredits = forms.IntegerField()
     maxReferrerCredits = forms.IntegerField()
     message = forms.CharField(max_length=200)
     kramerTemplateId = forms.CharField(max_length=200)
-    eventName = forms.CharField(max_length=200)
-    operator = forms.CharField(max_length=200)
-    value = forms.IntegerField()
-    mOperator = forms.CharField(max_length=200)
-    mValue = forms.IntegerField()
-    mReferrerCredits = forms.IntegerField()
     
