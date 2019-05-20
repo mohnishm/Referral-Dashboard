@@ -23,7 +23,7 @@ class MyAdminSite(admin.AdminSite):
 
     def campaign_view(self, request):
         if request.method == 'GET':
-            r = requests.get("https://referralservice-staging-http.internal.cleartax.co/v0/campaigns")
+            r = requests.get("https://example.com")
             data = r.json()
             print(data)
             return TemplateResponse(request, "admin/campaign.html", {"data":data})
@@ -58,7 +58,7 @@ class MyAdminSite(admin.AdminSite):
                     print(rule_formset.cleaned_data)
                     print(milestone_formset.cleaned_data)
                     print (dat)
-                    res = requests.post("https://referralservice-staging-http.internal.cleartax.co/v0/campaigns", data=json.dumps(dat), headers={'content-type': 'application/json'})
+                    res = requests.post("https://example.com", data=json.dumps(dat), headers={'content-type': 'application/json'})
                     if res.status_code == 201 or res.status_code == 200:
                         # import ipdb; ipdb.set_trace()
                         messages.success(request, 'Success!')
@@ -80,7 +80,7 @@ class MyAdminSite(admin.AdminSite):
 
     def campaign_update(self, request, pk):
         if request.method == 'GET':
-            res = requests.get("https://referralservice-staging-http.internal.cleartax.co/v0/campaigns")
+            res = requests.get("https://example.com")
             data = res.json()
             # print (data)
             for dt in data:
@@ -121,7 +121,7 @@ class MyAdminSite(admin.AdminSite):
                 dat["eventRules"] = arrRules
                 dat["milestoneRules"] = arrMilestoneRules
                 # import ipdb; ipdb.set_trace()
-                res = requests.put("https://referralservice-staging-http.internal.cleartax.co/v0/campaigns/{id}".format(id=pk), data=json.dumps(dat), headers={'content-type': 'application/json'})
+                res = requests.put("https://example.com/{id}".format(id=pk), data=json.dumps(dat), headers={'content-type': 'application/json'})
                 if res.status_code == 201 or res.status_code == 200:
                     messages.success(request, 'Update Success!')
                     return redirect("admin:campaign-view")
